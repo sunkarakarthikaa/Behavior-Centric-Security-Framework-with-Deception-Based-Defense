@@ -7,13 +7,14 @@ import org.springframework.stereotype.Component;
 public class RiskCalculator {
 
     private int getScore(double current, double baseline) {
-
-        double diff = Math.abs(current - baseline) / baseline * 100;
-
-        if (diff < 20) return 0;
-        else if (diff < 40) return 1;
-        else return 2;
-    }
+    // Guard: if baseline is 0, skip this metric
+    if (baseline == 0) return 0;
+    
+    double diff = Math.abs(current - baseline) / baseline * 100;
+    if (diff < 20) return 0;
+    else if (diff < 40) return 1;
+    else return 2;
+}
 
     public int calculateRiskScore(BehaviorDataDTO current, BehaviorDataDTO base) {
 

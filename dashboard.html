@@ -147,33 +147,9 @@ body {
 <div class="content">
 
 <!-- Set Baseline -->
-<button onclick="startBaseline()" 
-style="
-padding:10px 16px;
-border:none;
-border-radius:10px;
-background:#c9a96e;
-color:white;
-cursor:pointer;
-margin-bottom:20px;
-">
-Set Baseline
-</button>
-
-<!-- Save Baseline -->
-<button onclick="stopBaseline()" 
-style="
-padding:10px 16px;
-border:none;
-border-radius:10px;
-background:#8b5e3c;
-color:white;
-cursor:pointer;
-margin-left:10px;
-margin-bottom:20px;
-">
-Save Baseline
-</button>
+ <br>
+<button onclick="startBaseline()">Set Baseline</button><br><br>
+<button onclick="stopBaseline()">Save Baseline</button>
     <br>
 <h3 style="margin-bottom:35px;margin-left: 20px;">
     <i class="fa-solid fa-hospital"></i> Overview
@@ -210,287 +186,54 @@ Save Baseline
 
 </div>
 
-<script>
-    let savedBaseline = JSON.parse(sessionStorage.getItem("baseline"));
-let baselineMode = false;
-let baselineData = [];
-
-function stopBaseline(){
-    console.log("STOP BASELINE CALLED");
-    baselineMode = false;
-
-    if(baselineData.length === 0){
-        alert("No data captured! Please type during baseline.");
-        return;
-    }
-
-    let avg = calculateAverage(baselineData);
-    baselineMode = false;
-
-    savedBaseline = avg;
-
-sessionStorage.setItem(
-    "baseline",
-    JSON.stringify(savedBaseline)
-);
-
-alert("Baseline saved ✔");
-
-keyTimes = [];
-mouseMoves = [];
-clicks = [];
-totalKeysPressed = 0;
-
-document.getElementById("risk").innerHTML =
-    '<i class="fa-solid fa-shield-halved"></i> LOW';
-}
-
-function calculateAverage(arr){
-
-    let sum = {
-    typingSpeed:0,
-    keyDelay:0,
-    keyHoldTime:0,
-    mouseSpeed:0,
-    clickInterval:0,
-    typingConsistency:0
-};
-    
-
-    arr.forEach(d=>{
-    sum.typingSpeed += d.typingSpeed;
-    sum.keyDelay += d.keyDelay;
-    sum.keyHoldTime += d.keyHoldTime;
-    sum.mouseSpeed += d.mouseSpeed;
-    sum.clickInterval += d.clickInterval;
-    sum.typingConsistency += d.typingConsistency;
-});
-   
-
-    let n = arr.length;
-
-    return {
-    typingSpeed: sum.typingSpeed/n,
-    keyDelay: sum.keyDelay/n,
-    keyHoldTime: sum.keyHoldTime/n,
-    mouseSpeed: sum.mouseSpeed/n,
-    clickInterval: sum.clickInterval/n,
-    typingConsistency: sum.typingConsistency/n
-};
-}
-
-function startBaseline(){
-
-    alert("Baseline recording started (60 seconds)");
-
-    document.getElementById("risk").innerHTML =
-        '<i class="fa-solid fa-shield-halved"></i> Recording...';
-
-    baselineMode = true;
-
-    baselineData = [];
-
-
-    setTimeout(stopBaseline, 60000);
-}
-// -------- TRACKING --------
-let keyTimes = [];
-let keyDownTime = {};
-let mouseMoves = [];
-let clicks = [];
-let totalKeysPressed = 0;
-
-document.addEventListener("keydown", (e) => {
-
-    keyDownTime[e.key] = Date.now();
-
-    totalKeysPressed++;
-
-});
-
-document.addEventListener("keyup", (e) => {
-    let now = Date.now();
-    if (keyDownTime[e.key]) {
-        keyTimes.push(now - keyDownTime[e.key]);
-    }
-});
-
-document.addEventListener("mousemove", () => {
-    mouseMoves.push(Date.now());
-});
-
-document.addEventListener("click", () => {
-    clicks.push(Date.now());
-});
-
-// -------- HELPERS --------
-function average(arr){
-    if(arr.length <= 2){
-        return arr.reduce((a,b)=>a+b,0)/arr.length || 0;
-    }
-
-    arr.sort((a,b)=>a-b);
-    let trimmed = arr.slice(1, arr.length-1);
-
-    return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
-}
-
-
-// -------- SEND DATA --------
-function sendBehavior(){
-
-    if(keyTimes.length < 5){
-        console.log("Collecting more data...");
-        return;
-    }
-
-    let data = {
-        typingConsistency: totalKeysPressed,
-        typingSpeed: keyTimes.length,
-        keyDelay: keyTimes.length > 1
-            ? (keyTimes[keyTimes.length-1] - keyTimes[0]) / keyTimes.length
-            : 0,
-        keyHoldTime: average(keyTimes),
-        mouseSpeed: mouseMoves.length,
-        clickInterval: clicks.length > 1
-            ? (clicks[clicks.length-1] - clicks[0]) / clicks.length
-            : 0
-    };
-
-    if(baselineMode){
-
-    baselineData.push(data);
-
-    
-
-    return;
-}
-
-    console.log("REAL DATA:", data); 
-    let payload = {
-    current: data,
-    baseline: savedBaseline
-};
-    fetch("http://localhost:8080/behavior/analyze", {
-        method:"POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-    })
-    .then(res=>res.text())
-    .then(res=>handleRisk(res));
-
-    keyTimes = [];
-    mouseMoves = [];
-    clicks = [];
-    totalKeysPressed = 0;
-}
-
-function loadPatientCount(){
-    fetch("http://localhost:8080/patients")
-    .then(res=>res.json())
-    .then(data=>{
-        document.getElementById("totalPatients").innerText = data.length;
-    });
-}
-
-// call once + refresh
-loadPatientCount();
-setInterval(loadPatientCount, 5000);
-// -------- HANDLE RISK --------
-function handleRisk(res){
-
-    let el = document.getElementById("risk");
-
-    if(!savedBaseline){
-    el.innerHTML = "No Baseline ⚠️";
-    alert("Please set baseline first");
-    return;
-}
-
-    let level = "LOW";
-
-    if(res.includes("HIGH")) level = "HIGH";
-    else if(res.includes("MEDIUM")) level = "MEDIUM";
-
-    if(level === "HIGH"){
-        el.className = "risk-high";
-        el.innerHTML = "HIGH";
-        window.location.href = "fake.html";
-    }
-    else if(level === "MEDIUM"){
-        el.className = "risk-medium";
-        el.innerHTML = "MEDIUM";
-        showChallenge();
-    }
-    else{
-        el.className = "risk-low";
-        el.innerHTML = "LOW";
-    }
-}
-
-// -------- CHALLENGE --------
-function showChallenge(){
-    let ans = prompt("Security Check: Enter keyword");
-
-    if(ans !== "secure123"){
-        alert("Verification failed!");
-        window.location.href = "login.html";
-    }
-}
-
-// -------- LOOP --------
-setInterval(sendBehavior, 10000);
-function saveNotes(){
-
-    let note = document.getElementById("notesBox").value;
-
-    localStorage.setItem("clinicalNote", note);
-
-    alert("Saved locally ✔");
-}
-
-</script>
+<script src="src/main/resources/static/behavior.js"></script>
 
 <script>
-    
-    // 🔒 PROTECT PAGE
-if(sessionStorage.getItem("loggedIn") !== "true"){
+  // Page protection
+  if (sessionStorage.getItem("loggedIn") !== "true") {
     window.location.replace("login.html");
-}
+  }
 
-function go(page){
+  function go(page) {
     window.location.href = page;
-}
-function logout(){
+  }
+
+  function logout() {
     sessionStorage.removeItem("loggedIn");
-
-    // replace prevents going back
     window.location.replace("login.html");
-}
+  }
 
-function saveClinicalNote(){
-
-    let note = document.getElementById("clinicalNote").value;
-
-    localStorage.setItem("clinicalNote", note);
+  // Notes
+  function saveNotes() {
+    localStorage.setItem(
+      "clinicalNote",
+      document.getElementById("notesBox").value
+    );
 
     alert("Saved locally ✔");
-}
-window.onload = function(){
+  }
 
-    let note = localStorage.getItem("clinicalNote");
+  // Patient count
+  function loadPatientCount() {
+    fetch("http://localhost:8080/patients")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        document.getElementById("totalPatients").innerText = d.length;
+      });
+  }
 
-    if(note){
-        document.getElementById("notesBox").value = note;
+  window.onload = function() {
+
+    var note = localStorage.getItem("clinicalNote");
+
+    if (note) {
+      document.getElementById("notesBox").value = note;
     }
 
     loadPatientCount();
+  };
 
-    document.getElementById("risk").innerHTML =
-    '<i class="fa-solid fa-shield-halved"></i> LOW';
-}
-
+  setInterval(loadPatientCount, 5000);
 </script>
-
 </body>
 </html>

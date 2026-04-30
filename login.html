@@ -84,41 +84,91 @@
 </div>
 
 <script>
+let wrongAttempts = 0;
+
 function login(){
 
-    let username = document.getElementById("username").value.trim();
-    let password = document.getElementById("password").value.trim();
+    let username =
+        document.getElementById("username").value;
 
-    // ✅ simple credential check
-    if(username === "admin" && password === "123"){
+    let password =
+        document.getElementById("password").value;
 
-        // allow login first
-        sessionStorage.setItem("loggedIn", "true");
+    // ✅ CORRECT CREDENTIALS
+    if(username === "admin" &&
+       password === "Karthika$890"){
 
-        // optional: call behavior check (non-blocking)
-        fetch("http://localhost:8080/behavior/analyze", {
-            method:"POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({
-                typingSpeed: 10,
-                keyDelay: 100,
-                keyHoldTime: 80,
-                mouseSpeed: 200,
-                clickInterval: 150
-            })
-        })
-        .then(res=>res.text())
-        .then(res=>console.log("Behavior check:", res))
-        .catch(()=>console.log("Behavior check skipped"));
+        // LOW RISK
+        if(wrongAttempts === 0){
 
-        // ✅ go to dashboard
-        window.location.href = "dashboard.html";
+            sessionStorage.setItem("loggedIn", "true");
 
-    } else {
+            window.location.href = "dashboard.html";
+        }
+
+        // MEDIUM RISK
+        else if(wrongAttempts <= 2){
+
+            let challenge =
+                generateAIChallenge(password);
+
+            let ans =
+                prompt(challenge.question);
+
+            if(ans === challenge.answer){
+
+                sessionStorage.setItem("loggedIn", "true");
+
+                window.location.href = "dashboard.html";
+            }
+            else{
+
+                window.location.href = "fake.html";
+            }
+        }
+
+        // HIGH RISK
+        else{
+
+            window.location.href = "fake.html";
+        }
+    }
+
+    // ❌ WRONG CREDENTIALS
+    else{
+
+        wrongAttempts++;
+
         alert("Invalid credentials ❌");
     }
 }
-</script>
 
+function generateAIChallenge(password){
+
+    // remove symbols/numbers
+    let letters =
+        password.replace(/[^a-zA-Z]/g, "");
+
+    // random position
+    let index =
+        Math.floor(Math.random() * letters.length);
+
+    let ch =
+        letters[index].toLowerCase();
+
+    // alphabet position
+    let answer =
+        ch.charCodeAt(0) - 96;
+
+    return {
+
+        question:
+`AI Verification:
+What is the alphabetical position of character ${index + 1} in your password?`,
+
+        answer: answer.toString()
+    };
+}
+</script>
 </body>
 </html>

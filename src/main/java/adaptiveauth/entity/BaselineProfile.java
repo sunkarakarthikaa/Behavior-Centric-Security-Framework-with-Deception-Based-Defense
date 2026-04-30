@@ -8,7 +8,7 @@ public class BaselineProfile {
 
     @Id
     public String id;
-
+    public String username;
     public double typingSpeed;
     public double keyDelay;
     public double keyHoldTime;
