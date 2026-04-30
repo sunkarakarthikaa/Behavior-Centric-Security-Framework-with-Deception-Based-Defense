@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Appointments - MedSecure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body { margin:0; font-family:Inter; background:#f6f3ef; }
+body {
+    font-family: Inter;
+}
+.header {
+    height:60px;
+    background:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+
+}
+/* LAYOUT */
+.layout { display:flex; }
+
+/* SIDEBAR */
+.sidebar {
+    width:220px;
+    background:white;
+    min-height: 100vh;  
+    padding:20px;
+}
+
+th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+    text-align: center;   /* ADD THIS */
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+}
+
+
+.menu-item {
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu-item:hover { background:#f1ebe4; }
+.risk-low { color: green; }
+.risk-medium { color: orange; }
+.risk-high { color: red; }
+
+/* CONTENT */
+.content {
+    flex:1;
+    padding:20px;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+}
+
+table {
+    width:100%;
+    border-collapse: collapse;
+    
+}
+th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+
+    <div class="logo">MedSecure</div>
+
+    <div style="display:flex; align-items:center; gap:20px;">
+        <div><i class="fa-solid fa-user"></i> Admin</div>
+
+        <div id="risk" class="risk-low">
+            <i class="fa-solid fa-shield-halved"></i> LOW
+        </div>
+
+        <div onclick="logout()" style="cursor:pointer;">
+            Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+    </div>
+
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+         <div style="margin-bottom:15px;margin-left: 11px; margin-bottom: 20px; color:#605c5c;">
+    <i class="fa-solid fa-compass"></i> Navigation
+</div>
+
+        <div class="menu-item" onclick="go('dashboard.html')">Dashboard</div>
+        <div class="menu-item" onclick="go('patients.html')">Patients</div>
+        <div class="menu-item" onclick="go('appointments.html')">Appointments</div>
+        <div class="menu-item" onclick="go('doctors.html')">Doctors</div>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <div class="card">
+            <h3><i class="fa-solid fa-calendar-check"></i>  Appointments</h3>
+            <table>
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+
+                <tr>
+                    <td>John Doe</td>
+                    <td>Dr. Smith</td>
+                    <td>12 May</td>
+                    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+                </tr>
+
+                <tr>
+                    <td>Anna</td>
+                    <td>Dr. Kumar</td>
+                    <td>15 May</td>
+                    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+                </tr>
+
+                <tr>
+                    <td>Kiran</td>
+                    <td>Dr. Sharma</td>
+                    <td>18 May</td>
+                    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+                </tr>
+                
+                <tr>
+                    <td>Neha</td>
+                    <td>Dr. Kumar</td>
+                    <td>20 May</td>
+                    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+                </tr>
+                
+                <tr>
+                    <td>Rahul</td>
+                    <td>Dr. Smith</td>
+                    <td>22 May</td>
+                    <td><i class="fa-solid fa-circle-xmark" style="color:red;"></i> Cancelled</td>
+                </tr>
+
+<tr>
+    <td>Anjali</td>
+    <td>Dr. Mehta</td>
+    <td>25 May</td>
+    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+</tr>
+
+<tr>
+    <td>Vikram</td>
+    <td>Dr. Reddy</td>
+    <td>27 May</td>
+    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+</tr>
+
+<tr>
+    <td>Pooja</td>
+    <td>Dr. Gupta</td>
+    <td>28 May</td>
+    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+</tr>
+
+<tr>
+    <td>Arjun</td>
+    <td>Dr. Sharma</td>
+    <td>29 May</td>
+    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+</tr>
+
+<tr>
+    <td>Meera</td>
+    <td>Dr. Kumar</td>
+    <td>30 May</td>
+    <td><i class="fa-solid fa-circle-xmark" style="color:red;"></i> Cancelled</td>
+</tr>
+
+<tr>
+    <td>Rohan</td>
+    <td>Dr. Smith</td>
+    <td>1 June</td>
+    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+</tr>
+
+<tr>
+    <td>Kavya</td>
+    <td>Dr. Mehta</td>
+    <td>2 June</td>
+    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+</tr>
+                <tr>
+    <td>Ravi Kumar</td>
+    <td>Dr. Sharma</td>
+    <td>3 June</td>
+    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+</tr>
+
+<tr>
+    <td>Priya</td>
+    <td>Dr. Mehta</td>
+    <td>4 June</td>
+    <td><i class="fa-solid fa-clock" style="color:orange;"></i> Pending</td>
+</tr>
+
+<tr>
+    <td>Amit</td>
+    <td>Dr. Reddy</td>
+    <td>5 June</td>
+    <td><i class="fa-solid fa-circle-xmark" style="color:red;"></i> Cancelled</td>
+</tr>
+
+<tr>
+    <td>Sneha</td>
+    <td>Dr. Gupta</td>
+    <td>7 June</td>
+    <td><i class="fa-solid fa-circle-check" style="color:green;"></i> Completed</td>
+</tr>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // 🔒 PROTECT PAGE
+if(sessionStorage.getItem("loggedIn") !== "true"){
+    window.location.replace("login.html");
+}
+
+function go(page){
+    window.location.href = page;
+}
+
+function logout(){
+    sessionStorage.removeItem("loggedIn");
+
+    // replace prevents going back
+    window.location.replace("login.html");
+}
+// -------- TRACKING --------
+let keyTimes = [];
+let keyDownTime = {};
+let mouseMoves = [];
+let clicks = [];
+let totalKeysPressed = 0; 
+
+document.addEventListener("keydown", (e) => {
+
+    keyDownTime[e.key] = Date.now();
+
+    totalKeysPressed++;
+
+});
+
+document.addEventListener("keyup", (e) => {
+    let now = Date.now();
+    if (keyDownTime[e.key]) {
+        keyTimes.push(now - keyDownTime[e.key]);
+    }
+});
+
+document.addEventListener("mousemove", () => {
+    mouseMoves.push(Date.now());
+});
+
+document.addEventListener("click", () => {
+    clicks.push(Date.now());
+});
+
+// -------- HELPERS --------
+function average(arr){
+    if(arr.length <= 2){
+        return arr.reduce((a,b)=>a+b,0)/arr.length || 0;
+    }
+
+    arr.sort((a,b)=>a-b);
+    let trimmed = arr.slice(1, arr.length-1);
+
+    return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
+}
+
+// -------- SEND DATA --------
+function sendBehavior(){
+
+    if(keyTimes.length < 5){
+        console.log("Collecting more data...");
+        return;
+    }
+
+    let data = {
+        typingConsistency: totalKeysPressed,
+        typingSpeed: keyTimes.length,
+        keyDelay: keyTimes.length > 1
+            ? (keyTimes[keyTimes.length-1] - keyTimes[0]) / keyTimes.length
+            : 0,
+        keyHoldTime: average(keyTimes),
+        mouseSpeed: mouseMoves.length,
+        clickInterval: clicks.length > 1
+            ? (clicks[clicks.length-1] - clicks[0]) / clicks.length
+            : 0
+    };
+
+    if(baselineMode){
+
+    baselineData.push(data);
+
+
+
+    return;
+}
+
+    console.log("REAL DATA:", data);
+    let payload = {
+    current: data,
+    baseline: savedBaseline
+};
+    fetch("http://localhost:8080/behavior/analyze", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+    })
+    .then(res=>res.text())
+    .then(res=>handleRisk(res));
+
+    keyTimes = [];
+    mouseMoves = [];
+    clicks = [];
+    totalKeysPressed = 0;
+}
+
+// -------- HANDLE RISK --------
+function handleRisk(res){
+
+    let el = document.getElementById("risk");
+
+    if(!savedBaseline){
+    console.log("Baseline not configured");
+    return;
+}
+
+    let level = "LOW";
+
+    if(res.includes("HIGH")) level = "HIGH";
+    else if(res.includes("MEDIUM")) level = "MEDIUM";
+
+    if(level === "HIGH"){
+        el.className = "risk-high";
+        el.innerHTML = "HIGH";
+        window.location.href = "fake.html";
+    }
+    else if(level === "MEDIUM"){
+        el.className = "risk-medium";
+        el.innerHTML = "MEDIUM";
+        showChallenge();
+    }
+    else{
+        el.className = "risk-low";
+        el.innerHTML = "LOW";
+    }
+}
+
+// -------- CHALLENGE --------
+function showChallenge(){
+    let ans = prompt("Security Check: Enter keyword");
+
+    if(ans !== "secure123"){
+        alert("Verification failed!");
+        window.location.href = "login.html";
+    }
+}
+
+// -------- LOOP --------
+setInterval(sendBehavior, 10000);
+
+</script>
+
+</body>
+</html>
+

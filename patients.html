@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patients - MedSecure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body { margin:0; font-family:Inter; background:#f6f3ef; }
+
+/* HEADER */
+.header {
+    height:60px;
+    background:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    .risk-low { color: green; }
+.risk-medium { color: orange; }
+.risk-high { color: red; }
+}
+.logo {
+    font-family: Playfair Display;
+    font-size:20px;
+}
+/* LAYOUT */
+.layout { display:flex; }
+
+/* SIDEBAR */
+.sidebar {
+    width:220px;
+    background:white;
+    min-height: 100vh;   
+    padding:20px;
+}
+
+.menu-item {
+    padding:12px;
+    margin-bottom:10px;  
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu-item:hover {
+    background:#f1ebe4;
+}
+
+/* CONTENT */
+.content { flex:1; padding:20px; }
+
+/* CARD */
+.card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+}
+
+/* BUTTON */
+button {
+    background:#c9a96e;
+    border:none;
+    padding:8px 12px;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#b8955c;
+}
+
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+/* INPUT */
+input {
+    padding:8px;
+    margin:5px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+
+    <!-- LEFT -->
+    <div class="logo">MedSecure</div>
+
+    <!-- RIGHT -->
+    <div style="display:flex; align-items:center; gap:20px;">
+
+        <div>
+            <i class="fa-solid fa-user"></i> Admin
+        </div>
+
+        <div id="risk" class="risk-low">
+            <i class="fa-solid fa-shield-halved"></i> LOW
+        </div>
+
+        <div onclick="logout()" style="cursor:pointer;">
+    Logout <i class="fa-solid fa-right-from-bracket"></i>
+</div>
+
+    </div>
+
+</div>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div style="margin-bottom:15px;margin-left: 11px; margin-bottom: 20px; color:#605c5c;">
+    <i class="fa-solid fa-compass"></i> Navigation
+</div>
+<div class="menu-item" onclick="go('dashboard.html')">Dashboard</div>
+<div class="menu-item" onclick="go('patients.html')">Patients</div>
+<div class="menu-item" onclick="go('appointments.html')">Appointments</div>
+<div class="menu-item" onclick="go('doctors.html')">Doctors</div>
+<div style="position:absolute; bottom:20px; width:180px;">
+</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<div class="card">
+
+<h3 style="margin-bottom:35px;margin-left: 20px;">
+    <i class="fa-solid fa-hospital"></i> Patients Overview
+</h3>
+<h3>Total Patients: <span id="totalCount">0</span></h3>
+<!-- ADD FORM -->
+<div>
+    <input id="name" placeholder="Patient Name">
+    <input id="age" placeholder="Age">
+    <input id="room" placeholder="Room No">
+    <input id="doctor" placeholder="Doctor Name">
+    <input id="operation" placeholder="Operation Date">
+    <input id="discharge" placeholder="Discharge Date">
+
+    <button type="button" onclick="addPatient()" style="margin-top: 10px;">
+        <i class="fa-solid fa-plus"></i> Add Patient
+    </button>
+
+</div>
+
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Age</th>
+<th>Room</th>
+<th>Doctor</th>
+<th>Operation</th>
+<th>Discharge</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+</table>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+// LOAD DATA
+function loadPatients(){
+    fetch("http://localhost:8080/patients")
+    .then(res=>res.json())
+    .then(data=>{
+        render(data);
+
+        // ✅ update total count
+        document.getElementById("totalCount").innerText = data.length;
+    });
+}
+
+// ADD
+function addPatient(){
+
+    let p = {
+        name: document.getElementById("name").value,
+        age: parseInt(document.getElementById("age").value),
+        room: document.getElementById("room").value,
+        doctor: document.getElementById("doctor").value,
+        operationDate: document.getElementById("operation").value,
+        dischargeDate: document.getElementById("discharge").value
+    };
+
+    fetch("http://localhost:8080/patients", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(p)
+    }).then(() => {
+        loadPatients();
+
+        // clear inputs
+        document.getElementById("name").value = "";
+        document.getElementById("age").value = "";
+        document.getElementById("room").value = "";
+        document.getElementById("doctor").value = "";
+        document.getElementById("operation").value = "";
+        document.getElementById("discharge").value = "";
+    });
+}
+
+// DELETE
+function deletePatient(id){
+
+    // ✅ CONFIRM POPUP
+    let confirmDelete = confirm("Are you sure you want to delete this patient?");
+
+    if(!confirmDelete) return;
+
+    fetch(`http://localhost:8080/patients/${id}`, {
+        method:"DELETE"
+    }).then(loadPatients);
+}
+
+// EDIT (SAFE VERSION)
+function editPatient(id){
+
+    fetch("http://localhost:8080/patients")
+    .then(res=>res.json())
+    .then(data=>{
+        let p = data.find(x => x.id === id);
+
+        let updated = {
+            name: prompt("Name", p.name),
+            age: parseInt(prompt("Age", p.age)),
+            room: prompt("Room", p.room),
+            doctor: prompt("Doctor", p.doctor),
+            operationDate: prompt("Operation", p.operationDate),
+            dischargeDate: prompt("Discharge", p.dischargeDate)
+        };
+
+        fetch(`http://localhost:8080/patients/${id}`, {
+            method:"PUT",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(updated)
+        }).then(loadPatients);
+    });
+}
+
+function saveAction(id){
+
+    let note = document.getElementById(`action-${id}`).value;
+
+    fetch(`http://localhost:8080/patients/action/${id}`, {
+        method:"PUT",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ actionNote: note })
+    })
+    .then(res => {
+        if(res.ok){
+            let msg = document.getElementById(`msg-${id}`);
+            msg.innerText = "Saved ✔";
+
+            setTimeout(()=>{
+                msg.innerText = "";
+            },2000);
+        } else {
+            alert("Save failed ❌");
+        }
+    })
+    .catch(()=>{
+        alert("Server error ❌");
+    });
+}
+
+// RENDER TABLE
+function render(data){
+    let t = document.getElementById("table");
+    t.innerHTML = "";
+
+    data.forEach(p=>{
+        t.innerHTML += `
+        <tr>
+            <td>${p.name}</td>
+            <td>${p.age}</td>
+            <td>${p.room}</td>
+            <td>${p.doctor}</td>
+            <td>${p.operationDate}</td>
+            <td>${p.dischargeDate}</td>
+
+            <td>
+    <!-- Edit -->
+    <button onclick='editPatient("${p.id}")'>✏</button>
+
+    <!-- Delete -->
+    <button onclick='deletePatient("${p.id}")'>❌</button>
+
+    <!-- Note box -->
+    <br><br>
+    <textarea id="action-${p.id}">${p.actionNote || ""}</textarea>
+    <br>
+    <button onclick="saveAction('${p.id}')">💾</button>
+    <span id="msg-${p.id}" style="font-size:12px; color:green;"></span>
+</td>
+
+        </tr>`;
+    });
+}
+
+// NAVIGATION
+function go(page){
+    window.location.href = page;
+}
+
+// INIT
+loadPatients();
+function logout(){
+    window.location.href = "login.html";
+}
+let keyTimes = [];
+let keyDownTime = {};
+let mouseMoves = [];
+let clicks = [];
+let totalKeysPressed = 0;
+document.addEventListener("keydown", (e) => {
+
+    keyDownTime[e.key] = Date.now();
+
+    totalKeysPressed++;
+
+});
+
+document.addEventListener("keyup", (e) => {
+    let now = Date.now();
+    if (keyDownTime[e.key]) {
+        keyTimes.push(now - keyDownTime[e.key]);
+    }
+});
+
+document.addEventListener("mousemove", () => {
+    mouseMoves.push(Date.now());
+});
+
+document.addEventListener("click", () => {
+    clicks.push(Date.now());
+});
+
+// -------- HELPERS --------
+function average(arr){
+    if(arr.length <= 2){
+        return arr.reduce((a,b)=>a+b,0)/arr.length || 0;
+    }
+
+    arr.sort((a,b)=>a-b);
+    let trimmed = arr.slice(1, arr.length-1);
+
+    return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
+}
+
+// -------- SEND DATA --------
+function sendBehavior(){
+
+    if(keyTimes.length < 5){
+        console.log("Collecting more data...");
+        return;
+    }
+
+    let data = {
+        typingConsistency: totalKeysPressed,
+        typingSpeed: keyTimes.length,
+        keyDelay: keyTimes.length > 1
+            ? (keyTimes[keyTimes.length-1] - keyTimes[0]) / keyTimes.length
+            : 0,
+        keyHoldTime: average(keyTimes),
+        mouseSpeed: mouseMoves.length,
+        clickInterval: clicks.length > 1
+            ? (clicks[clicks.length-1] - clicks[0]) / clicks.length
+            : 0
+    };
+
+   if(baselineMode){
+
+    baselineData.push(data);
+
+
+    return;
+}
+
+    console.log("REAL DATA:", data);
+let payload = {
+    current: data,
+    baseline: savedBaseline
+};
+    fetch("http://localhost:8080/behavior/analyze", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+    })
+    .then(res=>res.text())
+    .then(res=>handleRisk(res));
+
+    keyTimes = [];
+    mouseMoves = [];
+    clicks = [];
+    totalKeysPressed = 0;
+}
+
+// -------- HANDLE RISK --------
+function handleRisk(res){
+
+    let el = document.getElementById("risk");
+
+    if(!savedBaseline){
+    console.log("Baseline not configured");
+    return;
+}
+
+    let level = "LOW";
+
+    if(res.includes("HIGH")) level = "HIGH";
+    else if(res.includes("MEDIUM")) level = "MEDIUM";
+
+    if(level === "HIGH"){
+        el.className = "risk-high";
+        el.innerHTML = "HIGH";
+        window.location.href = "fake.html";
+    }
+    else if(level === "MEDIUM"){
+        el.className = "risk-medium";
+        el.innerHTML = "MEDIUM";
+        showChallenge();
+    }
+    else{
+        el.className = "risk-low";
+        el.innerHTML = "LOW";
+    }
+}
+
+// -------- CHALLENGE --------
+function showChallenge(){
+    let ans = prompt("Security Check: Enter keyword");
+
+    if(ans !== "secure123"){
+        alert("Verification failed!");
+        window.location.href = "login.html";
+    }
+}
+
+// -------- LOOP --------
+setInterval(sendBehavior, 10000);
+</script>
+
+<script>
+    // 🔒 PROTECT PAGE
+if(sessionStorage.getItem("loggedIn") !== "true"){
+    window.location.replace("login.html");
+}
+
+function go(page){
+    window.location.href = page;
+}
+function logout(){
+    sessionStorage.removeItem("loggedIn");
+
+    // replace prevents going back
+    window.location.replace("login.html");
+}
+
+</script>
+</body>
+</html>

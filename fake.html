@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patients - MedSecure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body { margin:0; font-family:Inter; background:#f6f3ef; }
+
+/* HEADER */
+.header {
+    height:60px;
+    background:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+}
+
+.logo {
+    font-family: Playfair Display;
+    font-size:20px;
+}
+
+/* LAYOUT */
+.layout { display:flex; }
+
+/* SIDEBAR */
+.sidebar {
+    width:220px;
+    background:white;
+    height:calc(100vh - 60px);
+    padding:20px;
+}
+
+.menu-item {
+    padding:12px;
+    margin-bottom:10px;  
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu-item:hover {
+    background:#f1ebe4;
+}
+
+/* CONTENT */
+.content { flex:1; padding:20px; }
+
+/* CARD */
+.card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+}
+
+/* BUTTON */
+button {
+    background:#c9a96e;
+    border:none;
+    padding:8px 12px;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#b8955c;
+}
+
+/* TABLE */
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th, td {
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+/* INPUT */
+input, textarea {
+    padding:8px;
+    margin:5px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+
+    <div class="logo">MedSecure</div>
+
+    <div style="display:flex; align-items:center; gap:20px;">
+        <div><i class="fa-solid fa-user"></i> Admin</div>
+
+        <div style="color:red;">
+            <i class="fa-solid fa-shield-halved"></i> HIGH
+        </div>
+
+        <div onclick="logout()" style="cursor:pointer;">
+            Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+    </div>
+
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div style="margin-bottom:15px; margin-left:11px; color:#605c5c;">
+        <i class="fa-solid fa-compass"></i> Navigation
+    </div>
+
+    <div class="menu-item">Dashboard</div>
+    <div class="menu-item">Patients</div>
+    <div class="menu-item">Appointments</div>
+    <div class="menu-item">Doctors</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<div class="card">
+
+<h3 style="margin-bottom:35px;margin-left: 20px;">
+    <i class="fa-solid fa-hospital"></i> Patients Overview
+</h3>
+
+<h3>Total Patients: 3</h3>
+
+<!-- INPUT ROW (MATCHES REAL PAGE) -->
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <input placeholder="Patient Name" style="width:150px;">
+    <input placeholder="Age" style="width:100px;">
+    <input placeholder="Room No" style="width:120px;">
+    <input placeholder="Doctor Name" style="width:150px;">
+    <input placeholder="Operation Date" style="width:150px;">
+    <input placeholder="Discharge Date" style="width:150px;">
+</div>
+
+<button style="margin-top:10px;">
+    <i class="fa-solid fa-plus"></i> Add Patient
+</button>
+
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Age</th>
+<th>Room</th>
+<th>Doctor</th>
+<th>Operation</th>
+<th>Discharge</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>John Doe</td>
+<td>45</td>
+<td>ICU-2</td>
+<td>Dr. Smith</td>
+<td>2026-03-10</td>
+<td>-</td>
+<td>
+<button>✏</button>
+<button>❌</button>
+<br><br>
+<textarea>Patient stable. Vitals normal. Continue observation for 24 hours.</textarea>
+<br>
+<button>💾</button>
+</td>
+</tr>
+
+<tr>
+<td>Mary Jane</td>
+<td>32</td>
+<td>Room-12</td>
+<td>Dr. Alex</td>
+<td>2026-02-15</td>
+<td>2026-03-01</td>
+<td>
+<button>✏</button>
+<button>❌</button>
+<br><br>
+<textarea>Post-surgery recovery progressing well. Mild pain reported. Medication prescribed.</textarea>
+<br>
+<button>💾</button>
+</td>
+</tr>
+
+<tr>
+<td>Robert King</td>
+<td>60</td>
+<td>ICU-1</td>
+<td>Dr. Lee</td>
+<td>2026-04-01</td>
+<td>-</td>
+<td>
+<button>✏</button>
+<button>❌</button>
+<br><br>
+<textarea>Critical condition. Under ICU monitoring. Oxygen support required.</textarea>
+<br>
+<button>💾</button>
+</td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+// logout works
+function logout(){
+    sessionStorage.removeItem("loggedIn");
+    window.location.replace("login.html");
+}
+
+// block fake actions
+document.addEventListener("click", function(e){
+
+    if(e.target.innerText.includes("Logout")){
+        return;
+    }
+
+    if(e.target.tagName === "BUTTON"){
+        alert("Processing...");
+        e.preventDefault();
+    }
+});
+
+</script>
+
+</body>
+</html>

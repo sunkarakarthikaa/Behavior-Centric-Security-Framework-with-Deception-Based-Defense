@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Iris Verification - MedSecure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+<style>
+body {
+    font-family:Inter;
+    background:#f6f3ef;
+    text-align:center;
+}
+
+.container { margin-top:60px; }
+
+video {
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+button {
+    margin-top:20px;
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    background:#c9a96e;
+    color:white;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Iris Verification</h2>
+    <p>Ensure your eyes are clearly visible</p>
+
+    <video id="video" width="320" height="240" autoplay muted></video>
+    <br>
+    <button onclick="verify()">Verify</button>
+
+    <p id="status"></p>
+</div>
+
+<script>
+
+const video = document.getElementById("video");
+
+// start camera
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => video.srcObject = stream);
+
+// load models
+async function loadModels() {
+
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(
+        "https://justadudewhohacks.github.io/face-api.js/models"
+    );
+
+    await faceapi.nets.faceLandmark68Net.loadFromUri(
+        "https://justadudewhohacks.github.io/face-api.js/models"
+    );
+
+    document.getElementById("status").innerText = "Models Loaded ✔";
+}
+
+loadModels();
+
+loadModels();
+
+// verify function
+async function verify(){
+
+    document.getElementById("status").innerText = "Detecting...";
+
+    const detection = await faceapi
+        detectSingleFace(video)
+        .withFaceLandmarks();
+
+    console.log(detection); // 🔥 check console
+
+    if(!detection){
+        document.getElementById("status").innerText = "No face detected ❌";
+        return;
+    }
+
+    const leftEye = detection.landmarks.getLeftEye();
+    const rightEye = detection.landmarks.getRightEye();
+
+    if(leftEye && rightEye){
+        document.getElementById("status").innerText = "Eyes detected ✔";
+
+        setTimeout(()=>{
+            window.location.href = "dashboard.html";
+        },1000);
+    } else {
+        document.getElementById("status").innerText = "Eyes not visible ❌";
+    }
+}
+
+</script>
+
+</body>
+</html>

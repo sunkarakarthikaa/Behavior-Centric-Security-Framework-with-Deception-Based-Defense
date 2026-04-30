@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Iris Verification - MedSecure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- FIX #3: Removed 'defer' so faceapi is available when inline script runs -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+<style>
+  :root {
+    --gold: #c9a96e;
+    --gold-light: #e2c99a;
+    --bg: #f6f3ef;
+    --card: #ffffff;
+    --text: #2c2c2c;
+    --muted: #888;
+    --danger: #e05c5c;
+    --success: #4caf82;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 40px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    width: 400px;
+    text-align: center;
+  }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-weight: 300;
+  }
+
+  .video-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  }
+
+  video {
+    display: block;
+    width: 320px;
+    height: 240px;
+    object-fit: cover;
+  }
+
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .scan-overlay.active { opacity: 1; }
+
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    animation: scanMove 1.8s linear infinite;
+  }
+
+  @keyframes scanMove {
+    0%   { top: 0%; }
+    100% { top: 100%; }
+  }
+
+  .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--gold);
+    border-style: solid;
+  }
+
+  .corner.tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+  button {
+    margin-top: 24px;
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    background: var(--gold);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, opacity 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  button:hover:not(:disabled) { background: #b8913a; transform: translateY(-1px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #status {
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 20px;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+
+  #status.error   { color: var(--danger); }
+  #status.success { color: var(--success); }
+  #status.loading { color: var(--gold); }
+</style>
+</head>
+
+<body>
+<div class="card">
+  <div class="brand">MedSecure</div>
+  <h2>Iris Verification</h2>
+  <p class="subtitle">Ensure your eyes are clearly visible and well-lit</p>
+
+  <div class="video-wrapper">
+    <video id="video" width="320" height="240" autoplay muted playsinline></video>
+    <div class="scan-overlay" id="scanOverlay">
+      <div class="scan-line"></div>
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+    </div>
+  </div>
+
+  <br>
+  <!-- FIX #5: Button disabled by default until models load -->
+  <button id="verifyBtn" onclick="verify()" disabled>Verify</button>
+
+  <p id="status" class="loading">Loading models, please wait…</p>
+</div>
+
+<script>
+
+const video     = document.getElementById("video");
+const statusEl  = document.getElementById("status");
+const verifyBtn = document.getElementById("verifyBtn");
+const scanOverlay = document.getElementById("scanOverlay");
+
+function setStatus(msg, type = "") {
+  statusEl.textContent = msg;
+  statusEl.className = type;
+}
+
+// FIX #4: Added .catch() for camera errors
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => {
+    setStatus("Camera access denied ❌", "error");
+    console.error("Camera error:", err);
+  });
+
+// FIX #1: loadModels() called only ONCE
+// FIX #3: Called inside window.onload so faceapi script is guaranteed to be ready
+window.addEventListener("load", loadModels);
+
+async function loadModels() {
+  try {
+    const MODEL_URL = "/models";
+
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    console.log("Models loaded successfully");
+    setStatus("Ready — click Verify ✔", "success");
+
+    // FIX #5: Enable button only after models are fully loaded
+    verifyBtn.disabled = false;
+
+  } catch (err) {
+    setStatus("Failed to load models ❌", "error");
+    console.error("Model load error:", err);
+  }
+}
+
+async function verify() {
+  if (video.readyState !== 4) {
+    setStatus("Camera not ready ❌", "error");
+    return;
+  }
+
+  setStatus("Detecting…", "loading");
+  verifyBtn.disabled = true;
+  scanOverlay.classList.add("active");
+
+  try {
+    // FIX #2: Added the missing '.' before detectSingleFace
+    const detection = await faceapi
+      .detectSingleFace(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+      .withFaceLandmarks();
+
+    console.log("Detection result:", detection);
+
+    if (!detection) {
+      setStatus("No face detected ❌", "error");
+      verifyBtn.disabled = false;
+      scanOverlay.classList.remove("active");
+      return;
+    }
+
+    const leftEye  = detection.landmarks.getLeftEye();
+    const rightEye = detection.landmarks.getRightEye();
+
+    if (leftEye && rightEye) {
+      setStatus("Eyes verified — redirecting… ✔", "success");
+      setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
+    } else {
+      setStatus("Eyes not visible ❌", "error");
+      verifyBtn.disabled = false;
+      scanOverlay.classList.remove("active");
+    }
+
+  } catch (err) {
+    setStatus("Verification error ❌", "error");
+    console.error("Verify error:", err);
+    verifyBtn.disabled = false;
+    scanOverlay.classList.remove("active");
+  }
+}
+
+</script>
+</body>
+</html>

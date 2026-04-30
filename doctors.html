@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Doctors - MedSecure</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+
+body {
+    margin:0;
+    font-family: Inter;
+    background:#f6f3ef;
+}
+
+
+/* HEADER */
+.header {
+    height:60px;
+    background:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+
+}
+
+.logo {
+    font-family: Playfair Display;
+    font-size:20px;
+}
+
+.header-left {
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.header-right {
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.risk-low { color: green; }
+.risk-medium { color: orange; }
+.risk-high { color: red; }
+
+.logout {
+    cursor:pointer;
+}
+
+/* LAYOUT */
+.layout { display:flex; }
+
+/* SIDEBAR */
+.sidebar {
+    width:220px;
+    background:white;
+    min-height: 100vh;  
+    padding:20px;
+}
+
+.menu-item {
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.menu-item:hover {
+    background:#f1ebe4;
+}
+
+/* CONTENT */
+.content {
+    flex:1;
+    padding:20px;
+}
+
+/* CARDS */
+.cards {
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    width: 100%;              /* ✅ full width */
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+    margin:0;
+    font-size:14px;
+    color:#888;
+}
+
+.card p {
+    font-size:22px;
+    margin-top:10px;
+}
+
+
+
+
+
+.doctor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3 cards */
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.doctor-card {
+    background: #ffffff;                /* pure white */
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 1px solid #eee;            /* adds separation */
+}
+
+.doctor-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;  /* square rounded like your image */
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.doctor-card h4 {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.doctor-card p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.doctor-card button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    background: #1f5d5e;
+    color: white;
+    cursor: pointer;
+}
+
+.doctor-card button:hover {
+    background: #174748;
+}
+
+
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+
+    <div class="logo">MedSecure</div>
+
+    <div style="display:flex; align-items:center; gap:20px;">
+        <div><i class="fa-solid fa-user"></i> Admin</div>
+
+        <div id="risk" class="risk-low">
+            <i class="fa-solid fa-shield-halved"></i> LOW
+        </div>
+
+        <div onclick="logout()" style="cursor:pointer;">
+            Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+    </div>
+
+</div>
+
+<div class="layout"> 
+<div class="sidebar">
+    <div style="margin-bottom:15px;margin-left: 11px; margin-bottom: 20px; color:#605c5c;">
+    <i class="fa-solid fa-compass"></i> Navigation
+</div>
+<div class="menu-item" onclick="go('dashboard.html')">Dashboard</div>
+<div class="menu-item" onclick="go('patients.html')">Patients</div>
+<div class="menu-item" onclick="go('appointments.html')">Appointments</div>
+<div class="menu-item" onclick="go('doctors.html')">Doctors</div>
+<div style="position:absolute; bottom:20px; width:180px;">
+</div>
+</div>
+<!-- CONTENT -->
+<div class="content">
+<h3 style="margin-bottom:35px;margin-left: 20px;">
+    <i class="fa-solid fa-stethoscope"></i> Doctors
+</h3>
+
+    <div class="card">
+    
+
+    <div class="doctor-grid">
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg">
+            <h4>Dr. Srujith</h4>
+            <p>General Physician & Diabetologist</p>
+            <p>Timings: 10 am - 5 pm</p>
+            <p>12+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/45.jpg">
+            <h4>Dr. Krishna Chaitanya</h4>
+            <p>General & GI, Laparoscopic</p>
+            <p>Timings: 11 am - 4 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        <div class="doctor-card">
+            <img src="https://randomuser.me/api/portraits/men/60.jpg">
+            <h4>Dr. Puneeth</h4>
+            <p>Vascular Surgeon</p>
+            <p>Timings: 12 pm - 5 pm</p>
+            <p>15+ Years Experience</p>
+            <button>📞 Book Appointment</button>
+        </div>
+
+        
+
+    </div>
+</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+    // 🔒 PROTECT PAGE
+if(sessionStorage.getItem("loggedIn") !== "true"){
+    window.location.replace("login.html");
+}
+
+function go(page){
+    window.location.href = page;
+}
+function logout(){
+    sessionStorage.removeItem("loggedIn");
+
+    // replace prevents going back
+    window.location.replace("login.html");
+}
+//tracking 
+let keyTimes = [];
+let keyDownTime = {};
+let mouseMoves = [];
+let clicks = [];
+let totalKeysPressed = 0;
+document.addEventListener("keydown", (e) => {
+
+    keyDownTime[e.key] = Date.now();
+
+    totalKeysPressed++;
+
+});
+
+document.addEventListener("keyup", (e) => {
+    let now = Date.now();
+    if (keyDownTime[e.key]) {
+        keyTimes.push(now - keyDownTime[e.key]);
+    }
+});
+
+document.addEventListener("mousemove", () => {
+    mouseMoves.push(Date.now());
+});
+
+document.addEventListener("click", () => {
+    clicks.push(Date.now());
+});
+
+// -------- HELPERS --------
+function average(arr){
+    if(arr.length <= 2){
+        return arr.reduce((a,b)=>a+b,0)/arr.length || 0;
+    }
+
+    arr.sort((a,b)=>a-b);
+    let trimmed = arr.slice(1, arr.length-1);
+
+    return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
+}
+
+// -------- SEND DATA --------
+function sendBehavior(){
+
+    if(keyTimes.length < 5){
+        console.log("Collecting more data...");
+        return;
+    }
+
+    let data = {
+        typingConsistency: totalKeysPressed,
+        typingSpeed: keyTimes.length,
+        keyDelay: keyTimes.length > 1
+            ? (keyTimes[keyTimes.length-1] - keyTimes[0]) / keyTimes.length
+            : 0,
+        keyHoldTime: average(keyTimes),
+        mouseSpeed: mouseMoves.length,
+        clickInterval: clicks.length > 1
+            ? (clicks[clicks.length-1] - clicks[0]) / clicks.length
+            : 0
+    };
+
+   if(baselineMode){
+
+    baselineData.push(data);
+
+    return;
+}
+
+    console.log("REAL DATA:", data);
+let payload = {
+    current: data,
+    baseline: savedBaseline
+};
+    fetch("http://localhost:8080/behavior/analyze", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+    })
+    .then(res=>res.text())
+    .then(res=>handleRisk(res));
+
+    keyTimes = [];
+    mouseMoves = [];
+    clicks = [];
+    totalKeysPressed = 0;
+}
+
+
+// -------- HANDLE RISK --------
+function handleRisk(res){
+
+    let el = document.getElementById("risk");
+
+    if(!savedBaseline){
+    console.log("Baseline not configured");
+    return;
+}
+
+    let level = "LOW";
+
+    if(res.includes("HIGH")) level = "HIGH";
+    else if(res.includes("MEDIUM")) level = "MEDIUM";
+
+    if(level === "HIGH"){
+        el.className = "risk-high";
+        el.innerHTML = "HIGH";
+        window.location.href = "fake.html";
+    }
+    else if(level === "MEDIUM"){
+        el.className = "risk-medium";
+        el.innerHTML = "MEDIUM";
+        showChallenge();
+    }
+    else{
+        el.className = "risk-low";
+        el.innerHTML = "LOW";
+    }
+}
+
+// -------- CHALLENGE --------
+function showChallenge(){
+    let ans = prompt("Security Check: Enter keyword");
+
+    if(ans !== "secure123"){
+        alert("Verification failed!");
+        window.location.href = "login.html";
+    }
+}
+
+// -------- LOOP --------
+setInterval(sendBehavior, 10000);
+
+</script>
+
+</body>
+</html>
