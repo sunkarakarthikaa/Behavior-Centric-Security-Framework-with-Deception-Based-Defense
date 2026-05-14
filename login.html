@@ -97,6 +97,16 @@ function login(){
     // ✅ CORRECT CREDENTIALS
     if(username === "admin" &&
        password === "Karthika$890"){
+        fetch(`http://localhost:8080/baseline/${username}`)
+.then(res => res.json())
+.then(baseline => {
+
+    sessionStorage.setItem(
+        "medsecure_baseline",
+        JSON.stringify(baseline)
+    );
+
+    console.log("Baseline loaded:", baseline);
 
         // LOW RISK
         if(wrongAttempts === 0){
@@ -132,8 +142,8 @@ function login(){
 
             window.location.href = "fake.html";
         }
-    }
-
+ });
+}
     // ❌ WRONG CREDENTIALS
     else{
 
@@ -170,5 +180,6 @@ What is the alphabetical position of character ${index + 1} in your password?`,
     };
 }
 </script>
+<script src="behavior.js"></script>
 </body>
 </html>

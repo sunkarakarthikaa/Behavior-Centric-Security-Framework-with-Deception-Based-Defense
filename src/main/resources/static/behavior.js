@@ -16,6 +16,9 @@ var BH = {
 
   baselineMode:  false,
   baselineSnaps: [],   // snapshots collected during recording
+challengeActive: false,
+mediumCooldownUntil: 0,
+mediumCount: 0,
 };
 
 // ── Event Listeners ──────────────────────────────────────────
@@ -78,13 +81,12 @@ window.computeMetrics = function() {
   }
 
   // mouseSpeed: avg px/ms
-  var mouseSpeed = 0;
+var mouseSpeed = 0;
   if (BH.mouseSpeeds.length > 0) {
     mouseSpeed = BH.mouseSpeeds.reduce(function(a,b){return a+b;},0) / BH.mouseSpeeds.length;
   }
 
-  // clickInterval: avg ms between clicks
-  var clickInterval = 1000;
+  var clickInterval = 0;   // ← changed from 1000 to 0 so backend skips it when no clicks
   if (BH.clickTimes.length >= 2) {
     var cGaps = [];
     for (var j = 1; j < BH.clickTimes.length; j++) {
@@ -171,6 +173,9 @@ function averageSnaps(snaps) {
 
 // ── Send behavior for risk check ─────────────────────────────
 function sendBehavior() {
+if (BH.challengeActive) {
+  return;
+}
   // If in baseline recording mode, capture a snapshot every interval
   if (BH.baselineMode) {
     var snap = computeMetrics();
@@ -192,10 +197,14 @@ function sendBehavior() {
   }
 
   var current = computeMetrics();
+// Skip inactivity windows !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Skip inactivity windows
+if (BH.keyDownTimes.length < 2) {
+  console.log("Not enough keystrokes — skipping analysis");
+  resetAccumulators();
+  return;
+}
 
-  // FIX: Don't exit if keys < 5. Send whatever we have.
-  // If there's truly zero interaction, mouseSpeed and clickInterval
-  // will naturally show anomaly vs baseline anyway.
   resetAccumulators();
 
   var payload = { current: current, baseline: baseline };
@@ -214,20 +223,44 @@ function sendBehavior() {
 
 // ── Handle risk response ─────────────────────────────────────
 function handleRisk(res) {
+  res = res.toUpperCase();
   var el = document.getElementById("risk");
   if (!el) return;
 
   console.log("Risk response:", res);
 
   if (res.includes("HIGH")) {
+
     el.className = "risk-high";
-    el.innerHTML = '<i class="fa-solid fa-shield-halved"></i> HIGH';
+
+    el.innerHTML =
+      '<i class="fa-solid fa-shield-halved"></i> HIGH';
+
     window.location.href = "fake.html";
-  } else if (res.includes("MEDIUM")) {
+
+    return;
+   }
+    else if (res.includes("MEDIUM")) {
+    
+    BH.mediumCount++;
+   if (BH.mediumCount >= 3) {
+
+    BH.mediumCount = 0;
+
+    el.className = "risk-high";
+
+    el.innerHTML =
+      '<i class="fa-solid fa-shield-halved"></i> HIGH';
+
+    window.location.href = "fake.html";
+
+    return;
+}
     el.className = "risk-medium";
     el.innerHTML = '<i class="fa-solid fa-shield-halved"></i> MEDIUM';
     showChallenge();
   } else {
+   
     el.className = "risk-low";
     el.innerHTML = '<i class="fa-solid fa-shield-halved"></i> LOW';
   }
@@ -235,13 +268,33 @@ function handleRisk(res) {
 
 // ── Challenge popup ──────────────────────────────────────────
 function showChallenge() {
+
+  if (BH.challengeActive) return;
+
+  BH.challengeActive = true;
+
   var ans = prompt("⚠️ Security Check: Enter verification keyword");
-  if (ans !== "secure123") {
+
+  if (ans) ans = ans.trim().toLowerCase();
+
+  if (ans === "secure123") {
+    var el = document.getElementById("risk");
+    if (el) {
+      el.className = "risk-low";
+      el.innerHTML = '<i class="fa-solid fa-shield-halved"></i> LOW';
+    }
+    resetAccumulators();
+    BH.challengeActive = false;
+    alert("Verification successful ✔");
+  } else {
+    BH.challengeActive = false;
     alert("Verification failed! Logging out.");
     sessionStorage.removeItem("loggedIn");
     window.location.replace("login.html");
   }
 }
+BH.challengeActive = false;
+
 
 // ── Start monitoring loop ────────────────────────────────────
-setInterval(sendBehavior, 10000);
+setInterval(sendBehavior, 5000);

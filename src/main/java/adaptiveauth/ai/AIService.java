@@ -14,7 +14,7 @@ public class AIService {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    public String decide(int score, String level) {
+    public String decide(double score, String level) {
 
     //can be replaced with real ML or OpenAI
     if (level.equals("LOW")) {

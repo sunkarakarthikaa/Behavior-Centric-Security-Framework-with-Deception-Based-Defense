@@ -33,8 +33,10 @@ private LogService logService;
 
         BehaviorDataDTO current = request.current;
 BehaviorDataDTO baseline = request.baseline;
+System.out.println("CURRENT: " + current.typingSpeed + " | " + current.keyDelay + " | " + current.keyHoldTime + " | " + current.mouseSpeed + " | " + current.clickInterval);
+    System.out.println("BASELINE: " + baseline.typingSpeed + " | " + baseline.keyDelay + " | " + baseline.keyHoldTime + " | " + baseline.mouseSpeed + " | " + baseline.clickInterval);
 
-int score = riskCalculator.calculateRiskScore(
+double score = riskCalculator.calculateRiskScore(
         current,
         baseline
 );
@@ -52,9 +54,9 @@ log.decision = decision;
 
 logService.addLog(log);
 
-return "Score: " + score +
-        " | Level: " + level +
-        " | Decision: " + decision;
+return "Score: " + String.format("%.2f", score)
+        + " | Level: " + level
+        + " | Decision: " + decision;
 }
 
     // ✅ Get logs

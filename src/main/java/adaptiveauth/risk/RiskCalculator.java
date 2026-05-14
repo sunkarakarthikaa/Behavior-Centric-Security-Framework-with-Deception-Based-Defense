@@ -6,33 +6,57 @@ import org.springframework.stereotype.Component;
 @Component
 public class RiskCalculator {
 
-    private int getScore(double current, double baseline) {
-    // Guard: if baseline is 0, skip this metric
-    if (baseline == 0) return 0;
-    
-    double diff = Math.abs(current - baseline) / baseline * 100;
-    if (diff < 20) return 0;
-    else if (diff < 40) return 1;
-    else return 2;
+    private double deviation(double current, double baseline){
+
+    if(baseline == 0) return 0;
+
+    double diff =
+        Math.abs(current - baseline) / baseline;
+
+    return Math.min(diff, 1.0);
 }
 
-    public int calculateRiskScore(BehaviorDataDTO current, BehaviorDataDTO base) {
+    public double calculateRiskScore(
+        BehaviorDataDTO current,
+        BehaviorDataDTO base
+){
 
-        int score = 0;
+    double typingDeviation =
+    deviation(current.typingSpeed,
+              base.typingSpeed);
 
-        score += getScore(current.typingSpeed, base.typingSpeed);
-        score += getScore(current.keyDelay, base.keyDelay);
-        score += getScore(current.keyHoldTime, base.keyHoldTime);
-        score += getScore(current.mouseSpeed, base.mouseSpeed);
-        score += getScore(current.clickInterval, base.clickInterval);
+    double keyDelayDeviation =
+        deviation(current.keyDelay,
+                  base.keyDelay);
 
-        return score;
+    double holdDeviation =
+        deviation(current.keyHoldTime,
+                  base.keyHoldTime);
+
+    double mouseDeviation =
+        deviation(current.mouseSpeed,
+                  base.mouseSpeed);
+
+    double consistencyDeviation =
+        deviation(current.typingConsistency,
+                  base.typingConsistency);
+
+    double composite =
+            (0.30 * typingDeviation)
+          + (0.25 * keyDelayDeviation)
+          + (0.20 * holdDeviation)
+          + (0.10 * mouseDeviation)
+          + (0.15 * consistencyDeviation);
+
+    return composite;
+}
+
+public String getRiskLevel(double score){
+
+    if(score >= 0.35){
+        return "MEDIUM";
     }
 
-    public String getRiskLevel(int score) {
-
-        if (score <= 2) return "LOW";
-        else if (score <= 6) return "MEDIUM";
-        else return "HIGH";
-    }
+    return "LOW";
+}
 }
