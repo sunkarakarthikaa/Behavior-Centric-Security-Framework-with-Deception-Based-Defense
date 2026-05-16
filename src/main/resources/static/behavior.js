@@ -1,13 +1,7 @@
-// ============================================================
-// behavior.js — Single source of truth for MedSecure
-// Include this on every protected page via <script src="behavior.js">
-// ============================================================
-
-// ── State ────────────────────────────────────────────────────
 var BH = {
   keyDownTime:   {},
-  keyHoldTimes:  [],   // hold durations (ms)
-  keyDownTimes:  [],   // timestamps of keydown events
+  keyHoldTimes:  [],   
+  keyDownTimes:  [],   
   mouseSpeeds:   [],
   clickTimes:    [],
   lastMouseX:    null,
@@ -15,13 +9,13 @@ var BH = {
   lastMouseTime: null,
 
   baselineMode:  false,
-  baselineSnaps: [],   // snapshots collected during recording
+  baselineSnaps: [],   
 challengeActive: false,
 mediumCooldownUntil: 0,
 mediumCount: 0,
 };
 
-// ── Event Listeners ──────────────────────────────────────────
+// ── Event Listeners ──────────────────────────────────────────!!!!!!!_---------------
 document.addEventListener("keydown", function(e) {
   BH.keyDownTime[e.key] = Date.now();
   BH.keyDownTimes.push(Date.now());
@@ -55,16 +49,16 @@ document.addEventListener("click", function() {
   BH.clickTimes.push(Date.now());
 });
 
-// ── Compute metrics from raw data ────────────────────────────
+// ── Compute metrics from raw data ────────────────────────────!!!!!!!!!!!!!!!!!!!!!!!----------------
 window.computeMetrics = function() {
-  // typingSpeed: keys per second (needs at least 2 keydowns)
+  
   var typingSpeed = 0;
   if (BH.keyDownTimes.length >= 2) {
     var span = (BH.keyDownTimes[BH.keyDownTimes.length-1] - BH.keyDownTimes[0]) / 1000;
     typingSpeed = span > 0 ? BH.keyDownTimes.length / span : 0;
   }
 
-  // keyDelay: avg gap between consecutive keydowns (ms)
+ 
   var keyDelay = 200;
   if (BH.keyDownTimes.length >= 2) {
     var gaps = [];
@@ -74,13 +68,13 @@ window.computeMetrics = function() {
     keyDelay = gaps.reduce(function(a,b){return a+b;},0) / gaps.length;
   }
 
-  // keyHoldTime: avg hold duration (ms)
+ 
   var keyHoldTime = 100;
   if (BH.keyHoldTimes.length > 0) {
     keyHoldTime = BH.keyHoldTimes.reduce(function(a,b){return a+b;},0) / BH.keyHoldTimes.length;
   }
 
-  // mouseSpeed: avg px/ms
+
 var mouseSpeed = 0;
   if (BH.mouseSpeeds.length > 0) {
     mouseSpeed = BH.mouseSpeeds.reduce(function(a,b){return a+b;},0) / BH.mouseSpeeds.length;
@@ -95,7 +89,7 @@ var mouseSpeed = 0;
     clickInterval = cGaps.reduce(function(a,b){return a+b;},0) / cGaps.length;
   }
 
-  // typingConsistency: std dev of keyDelay gaps (lower = more consistent)
+  
   var typingConsistency = 0;
   if (BH.keyDownTimes.length >= 3) {
     var dGaps = [];
@@ -110,7 +104,7 @@ var mouseSpeed = 0;
   return { typingSpeed, keyDelay, keyHoldTime, mouseSpeed, clickInterval, typingConsistency };
 }
 
-// ── Reset accumulators (after each send window) ──────────────
+
 function resetAccumulators() {
   BH.keyHoldTimes  = [];
   BH.keyDownTimes  = [];
@@ -118,7 +112,7 @@ function resetAccumulators() {
   BH.clickTimes    = [];
 }
 
-// ── Baseline: Start ──────────────────────────────────────────
+
 function startBaseline() {
   BH.baselineMode  = true;
   BH.baselineSnaps = [];
@@ -130,17 +124,17 @@ function startBaseline() {
   alert("Baseline recording started. Type, click, and move your mouse normally for 30 seconds, then click Save Baseline.");
 }
 
-// ── Baseline: Stop & Save ────────────────────────────────────
+
 function stopBaseline() {
   if (!BH.baselineMode) {
     alert("Please click Set Baseline first.");
     return;
   }
 
-  // Capture the current window as final snapshot
+ 
   var snap = computeMetrics();
 
-  // Need meaningful data — at least 3 keystrokes
+ 
   if (BH.keyDownTimes.length < 3 && BH.baselineSnaps.length === 0) {
     alert("Not enough data. Please type more during baseline recording.");
     return;
@@ -149,10 +143,10 @@ function stopBaseline() {
   BH.baselineSnaps.push(snap);
   BH.baselineMode = false;
 
-  // Average all snapshots into one baseline
+  
   var baseline = averageSnaps(BH.baselineSnaps);
   sessionStorage.setItem("medsecure_baseline", JSON.stringify(baseline));
-
+//session storage ------------------------------------!!!!!!!!---------
   resetAccumulators();
 
   var el = document.getElementById("risk");
@@ -171,12 +165,12 @@ function averageSnaps(snaps) {
   return result;
 }
 
-// ── Send behavior for risk check ─────────────────────────────
+
 function sendBehavior() {
 if (BH.challengeActive) {
   return;
 }
-  // If in baseline recording mode, capture a snapshot every interval
+  
   if (BH.baselineMode) {
     var snap = computeMetrics();
     if (BH.keyDownTimes.length >= 2) {
@@ -198,7 +192,7 @@ if (BH.challengeActive) {
 
   var current = computeMetrics();
 // Skip inactivity windows !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// Skip inactivity windows
+
 if (BH.keyDownTimes.length < 2) {
   console.log("Not enough keystrokes — skipping analysis");
   resetAccumulators();
@@ -210,7 +204,7 @@ if (BH.keyDownTimes.length < 2) {
   var payload = { current: current, baseline: baseline };
 
   console.log("Sending behavior:", payload);
-
+//fetch api-------------------------------------------!!!!!!!!!!!------------------------
   fetch("http://localhost:8080/behavior/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -297,4 +291,4 @@ BH.challengeActive = false;
 
 
 // ── Start monitoring loop ────────────────────────────────────
-setInterval(sendBehavior, 5000);
+setInterval(sendBehavior, 10000);
